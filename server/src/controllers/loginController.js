@@ -1,44 +1,41 @@
 const Login = require('../models/Login')
 
-exports.get = (req, res, next) => {
-    const id = req.params.id;
-    Login.findAll().then(response => {
-        var find = [];
-        var data = JSON.parse(JSON.stringify(response));
-        for(var i = 0; i < data.length; i++){
-            if(data[i].id == id) {
-                find = data[i] ;
-                break;
-            }
-        }
-        res.status(200).json(find);
-    });
+exports.get = (req, res) => {
+    let id = req.params.id;
+
+    Login.findOne({ where: {id: id}}).then(response => {
+        console.log('Exibindo um usuário')
+        res.status(200).json(JSON.parse(JSON.stringify(response)));
+    })
 }
 
-exports.getAll = (req, res, next) => {
+exports.getAll = (req, res) => {
     Login.findAll().then(response => {
+        console.log('Exibindo todos os usuários')
         res.status(200).json(JSON.parse(JSON.stringify(response)));
     });
 }
 
-exports.post = (req, res, next) => {
-    var usuario = req.body.usuario;
-    var senha = req.body.senha;
-    var data = {
+exports.post = (req, res) => {
+    let usuario = req.body.usuario;
+    let senha = req.body.senha;
+
+    let data = {
         usuario: usuario,
         senha: senha,
     };
 
     Login.create(data).then(response => {
+        console.log('Usuário criado')
         res.status(200).json(response);
-    });
+    })
 }
 
-exports.update = (req, res, next) => {
-    var id = req.body.id;
-    var senha = req.body.senha;
+exports.update = (req, res) => {
+    let id = req.body.id;
+    let senha = req.body.senha;
 
-    var data = {
+    let data = {
         senha: senha,
     };
 
@@ -51,8 +48,8 @@ exports.update = (req, res, next) => {
     });
 }
 
-exports.delete = (req, res, next) => {
-    var id = req.params.id;
+exports.delete = (req, res) => {
+    let id = req.params.id;
     Login.destroy({
         where: {
             id: id

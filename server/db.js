@@ -6,7 +6,7 @@ const db = new Sequelize('server', 'server', 'cobom', {
     dialectOptions: {
         timezone: process.env.db_timezone
     },
-    logging: false
+    //logging: false
 })
 
 db.authenticate().then(function() {

@@ -5,7 +5,7 @@ const controller = require('../controllers/loginController')
 router.get('/',  controller.getAll);
 router.get('/:id',  controller.get);
 router.post('/',    controller.post);
-router.put('/',     controller.update);
+router.patch('/',     controller.update);
 router.delete('/:id', controller.delete);
 
 module.exports = router;

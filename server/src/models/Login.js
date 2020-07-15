@@ -2,10 +2,16 @@ const sequelize = require('../../db')
 const Sequelize = require('sequelize')
 
 const Usuario = sequelize.define("usuario", {
-    usuario: Sequelize.STRING,
-    senha: Sequelize.STRING,
+    usuario: {
+        type: Sequelize.STRING,
+        allowNull: false
+    },
+    senha: {
+        type: Sequelize.STRING,
+            allowNull: false
+    }
 });
 
-Usuario.sync({ force: true });
+//Usuario.sync({ force: true });
 
 module.exports = Usuario
