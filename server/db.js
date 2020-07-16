@@ -3,9 +3,7 @@ const Sequelize = require('sequelize')
 const db = new Sequelize('server', 'server', 'cobom', {
     host: 'localhost',
     dialect: 'mariadb',
-    dialectOptions: {
-        timezone: process.env.db_timezone
-    },
+    timezone: 'Etc/GMT+3'
     //logging: false
 })
 

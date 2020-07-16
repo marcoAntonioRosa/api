@@ -33,9 +33,11 @@ exports.post = (req, res) => {
 
 exports.update = (req, res) => {
     let id = req.body.id;
+    let usuario = req.body.usuario;
     let senha = req.body.senha;
 
     let data = {
+        usuario: usuario,
         senha: senha,
     };
 
