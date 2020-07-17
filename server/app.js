@@ -2,7 +2,7 @@ const express = require('express')
 const app = express()
 const bodyParser = require('body-parser')
 
-const login = require('./src/routes/loginRoutes')
+const usuario = require('./src/routes/usuarioRoutes')
 
 app.get('/', function (req, res) {
     res.send('Hello World')
@@ -11,8 +11,7 @@ app.get('/', function (req, res) {
 app.use(bodyParser.json())
 //app.use(bodyParser.urlencoded({ extended: false }))
 
-app.use('/login', login)
-
+app.use('/usuario', usuario)
 
 
 module.exports = app
