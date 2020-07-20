@@ -3,13 +3,13 @@ const app = express()
 const bodyParser = require('body-parser')
 
 const usuario = require('./src/routes/usuarioRoutes')
+const checkAuth = require('./src/middleware/checkAuth')
 
-app.get('/', function (req, res) {
+app.get('/', checkAuth, (req, res) => {
     res.send('Hello World')
 })
 
 app.use(bodyParser.json())
-//app.use(bodyParser.urlencoded({ extended: false }))
 
 app.use('/usuario', usuario)
 
