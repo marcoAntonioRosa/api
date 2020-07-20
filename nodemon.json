@@ -1,0 +1,13 @@
+{
+  "env": {
+    "database": "server",
+    "username": "server",
+    "password": "cobom",
+    "host": "localhost",
+    "dialect": "mariadb",
+    "dialectOptions": {
+      "timezone": "Etc/GMT+3"
+    },
+    "timezone": "Etc/GMT+3"
+  }
+}

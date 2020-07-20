@@ -7,8 +7,8 @@ module.exports = (req, res, next) => {
 
         token = req.headers.authorization.split(" ")[1]
         console.log(token)
-        decodedToken = jwt.verify(token, "cobom");
-        req.userData = decodedToken;
+        decodedToken = jwt.verify(token, process.env.DB_TOKEN)
+        req.userData = decodedToken
         next();
     } catch (error) {
         return res.status(401).json({

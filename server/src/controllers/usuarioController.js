@@ -73,12 +73,10 @@ exports.login = (req, res) => {
                             usuario: usuario.usuario,
                             senha: usuario.senha
                         },
-                            "cobom",
+                            process.env.DB_TOKEN,
                             {
-                                expiresIn: "1h"
-                            },
-
-                            )
+                                expiresIn: "8h"
+                            })
                         return res.status(200).json({
                             token: token,
                             message: 'Logado!'
