@@ -1,5 +1,5 @@
 const Sequelize = require('sequelize')
-const dotenv = require('dotenv').config()
+//const dotenv = require('dotenv').config()
 
 const dataBase = process.env.DB_NAME
 const usuario = process.env.DB_USER
@@ -14,13 +14,19 @@ const db = new Sequelize(dataBase, usuario, senha, {
     dialectOptions: {
         timezone: timeZone
     },
-    timezone: timeZone
+    timezone: timeZone,
+    pool: {
+        max: 5,
+        min: 0,
+        acquire: 30000,
+        idle: 10000
+    }
 })
 
-db.authenticate().then(function() {
+db.authenticate().then(() => {
     console.log("Conecção com o banco de dados estabelecida com sucesso.");
-}).catch(function(err) {
+}).catch((err) => {
     console.log("Não foi possível se conectar ao banco de dados: " + err);
-});
+})
 
 module.exports = db

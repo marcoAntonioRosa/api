@@ -9,10 +9,23 @@ const Usuario = sequelize.define("usuario", {
     },
     senha: {
         type: Sequelize.STRING,
-            allowNull: false
+        allowNull: false
+    },
+    isAdmin: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false
     }
 });
 
 //Usuario.sync({ force: true });
+Usuario.sync().then(() => {
+    console.log("Tabela usuario verificada com sucesso")
+}).catch((err) => {
+    console.log("Erro ao criar a tabela: " + err)
+})/*.finally(() => {
+    sequelize.close()
+    console.log("Conexao com a tabela usuario fechada")
+});
+*/
 
 module.exports = Usuario

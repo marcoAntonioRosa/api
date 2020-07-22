@@ -37,7 +37,8 @@ exports.post = (req, res) => {
                     } else {
                         let data = {
                             usuario: req.body.usuario,
-                            senha: hash
+                            senha: hash,
+                            isAdmin: false
                         }
                         Login.create(data).then(response => {
                             res.status(201).json(response);
@@ -96,18 +97,27 @@ exports.login = (req, res) => {
 
 exports.update = (req, res) => {
     let id = req.body.id;
-    let data = {
-        usuario: req.body.usuario,
-        senha: req.body.senha
-    };
 
-    Login.update(data, {
-        where: {
-            id: id
+    bCrypt.hash(req.body.senha, 10, (err, hash) => {
+        if (err) {
+            return res.status(500).json({
+                error: err
+            })
+        } else {
+            let data = {
+                usuario: req.body.usuario,
+                senha: hash,
+                isAdmin: req.body.isAdmin
+            };
+            Login.update(data, { where: {id: id}}).then(response => {
+                res.status(200).json(response);
+            }).catch((err) => {
+                res.status(500).json({
+                    error: err
+                });
+            })
         }
-    }).then(response => {
-        res.status(200).json(response);
-    });
+    })
 }
 
 exports.delete = (req, res) => {
