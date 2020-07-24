@@ -7,6 +7,11 @@ const Usuario = sequelize.define("usuario", {
         allowNull: false,
         unique: true
     },
+    email: {
+        type: Sequelize.STRING,
+        //allowNull: false,
+        unique: true
+    },
     senha: {
         type: Sequelize.STRING,
         allowNull: false
@@ -14,6 +19,14 @@ const Usuario = sequelize.define("usuario", {
     isAdmin: {
         type: Sequelize.BOOLEAN,
         allowNull: false
+    },
+    passwordResetToken: {
+        type: Sequelize.STRING,
+        allowNull: true
+    },
+    passwordResetExpires: {
+        type: Sequelize.DATE,
+        allowNull: true
     }
 });
 

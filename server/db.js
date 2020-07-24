@@ -1,20 +1,14 @@
 const Sequelize = require('sequelize')
-//const dotenv = require('dotenv').config()
 
-const dataBase = process.env.DB_NAME
-const usuario = process.env.DB_USER
-const senha = process.env.DB_PASS
-const host = process.env.DB_HOST
-const dialect = process.env.DB_DIALECT
-const timeZone = process.env.DB_TIMEZONE
+const { DB_DATABASE, DB_USER, DB_PASS, DB_HOST, DB_DIALECT, DB_TIMEZONE } = process.env;
 
-const db = new Sequelize(dataBase, usuario, senha, {
-    host: host,
-    dialect: dialect,
+const db = new Sequelize(DB_DATABASE, DB_USER, DB_PASS, {
+    host: DB_HOST,
+    dialect: DB_DIALECT,
     dialectOptions: {
-        timezone: timeZone
+        timezone: DB_TIMEZONE
     },
-    timezone: timeZone,
+    timezone: DB_TIMEZONE,
     pool: {
         max: 5,
         min: 0,

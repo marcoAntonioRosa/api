@@ -1,6 +1,8 @@
 const Login = require('../models/Usuario')
 const bCrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
+const crypto = require ('crypto')
+const mailer = require('../modules/mailer')
 
 exports.get = (req, res) => {
     let id = req.params.id;
@@ -37,6 +39,7 @@ exports.post = (req, res) => {
                     } else {
                         let data = {
                             usuario: req.body.usuario,
+                            email: req.body.email,
                             senha: hash,
                             isAdmin: false
                         }
@@ -95,6 +98,40 @@ exports.login = (req, res) => {
     }
 }
 
+exports.novaSenha = async (req, res) => {
+    try {
+        const { email } = req.body
+        const user = await Login.findOne({where: { email }})
+
+        if (!user)
+            return res.status(404).json({ error: 'User not found' })
+
+        const token = crypto.randomBytes(20).toString('hex');
+        const now = new Date();
+        now.setHours(now.getHours() + 1);
+
+        await Login.update(
+            { passwordResetToken: token, passwordResetExpires: now },
+            { where: { id: user.id }}
+        ).catch((err) => {
+            return res.status(500).json({ error: err });
+        })
+
+        mailer.sendMail({
+            to: email,
+            from: 'email@prontuario.com.br',
+            template: 'forgot_password',
+            context: { token }
+        }, (err) => {
+                if (err)
+                    return res.status(400).json({ error: 'Could not send email.' + err })
+            return res.status(200)
+        })
+    } catch (err) {
+        res.status(400).json({ error: 'Error on forgot password. Try again.' + err })
+    }
+}
+
 exports.update = (req, res) => {
     let id = req.body.id;
 
@@ -106,6 +143,7 @@ exports.update = (req, res) => {
         } else {
             let data = {
                 usuario: req.body.usuario,
+                email: req.body.email,
                 senha: hash,
                 isAdmin: req.body.isAdmin
             };

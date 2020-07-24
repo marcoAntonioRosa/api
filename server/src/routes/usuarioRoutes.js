@@ -8,6 +8,7 @@ router.get('/', checkAuth, checkAdmin, controller.getAll);
 router.get('/:id', checkAuth, checkAdmin, controller.get);
 router.post('/', controller.post);
 router.post('/login', controller.login);
+router.post('/forgot_password', controller.novaSenha)
 router.put('/', checkAuth, controller.update);
 router.delete('/:id', checkAuth, controller.delete);
 
