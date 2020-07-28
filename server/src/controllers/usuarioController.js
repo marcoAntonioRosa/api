@@ -98,7 +98,7 @@ exports.login = (req, res) => {
     }
 }
 
-exports.novaSenha = async (req, res) => {
+exports.forgotPassword = async (req, res) => {
     try {
         const { email } = req.body
         const user = await Login.findOne({where: { email }})
@@ -117,18 +117,55 @@ exports.novaSenha = async (req, res) => {
             return res.status(500).json({ error: err });
         })
 
-        mailer.sendMail({
+        let corpoEmail = {
+            from: 'naoresponda@prontuario.com.br',
             to: email,
-            from: 'email@prontuario.com.br',
-            template: 'forgot_password',
-            context: { token }
-        }, (err) => {
-                if (err)
-                    return res.status(400).json({ error: 'Could not send email.' + err })
-            return res.status(200)
+            subject: 'Resetar a senha',
+            html: '<h1>Segue o código para resetar sua senha</h1>' + token
+        }
+
+        mailer.sendMail(corpoEmail, (err, info) => {
+            if (err) {
+                return res.status(400).json({ error: 'Could not send email.' + err })
+            }
+            return res.status(200).json({Email: + info.response})
         })
+
     } catch (err) {
         res.status(400).json({ error: 'Error on forgot password. Try again.' + err })
+    }
+}
+
+exports.resetPassword = async (req, res) => {
+    const { email, token, password } = req.body;
+    const now = new Date();
+
+    try {
+        const user = await Login.findOne({ where: { email }})
+
+        if (!user)
+            return res.status(404).json({ error: 'User not found' })
+
+        if (token !== user.passwordResetToken)
+            return res.status(401).json({ error: 'Incorrect token' })
+
+        if (now > user.passwordResetExpires)
+            return res.status(401).json({ error: 'Token expired, generate a new one' })
+
+        bCrypt.hash(password, 10, (err, hash) => {
+            if (err)
+                return res.status(500).json({ error: err })
+
+            Login.update({senha: hash}, { where: { email }}).then(response => {
+                res.status(200).json(response);
+            }).catch((err) => {
+                res.status(500).json({
+                    error: err
+                });
+            })
+        })
+    } catch (err) {
+        res.status(400).json({ error: 'Error on reset password. Try again.' + err })
     }
 }
 
