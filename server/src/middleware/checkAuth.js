@@ -5,7 +5,7 @@ module.exports = (req, res, next) => {
         let token;
 
         token = req.headers.authorization.split(" ")[1]
-        req.userData = jwt.verify(token, process.env.DB_TOKEN)
+        req.userData = jwt.verify(token, process.env.ACCESS_TOKEN)
         next();
     } catch (error) {
         return res.status(401).json({

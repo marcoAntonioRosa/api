@@ -1,5 +1,6 @@
 const sequelize = require('../../db')
 const Sequelize = require('sequelize')
+const bCrypt = require('bcrypt')
 
 const Usuario = sequelize.define("usuario", {
     usuario: {
@@ -30,12 +31,16 @@ const Usuario = sequelize.define("usuario", {
     }
 });
 
+Usuario.afterValidate(async (usuario, options) => {
+    usuario.senha = await bCrypt.hash(usuario.senha, 10)
+});
+
 //Usuario.sync({ force: true });
 
 Usuario.sync().then(() => {
-    console.log("Tabela usuario verificada com sucesso")
+    console.log("Table verification successful")
 }).catch((err) => {
-    console.log("Erro ao criar a tabela: " + err)
+    console.log("Error on table verification: " + err)
 })
 
 module.exports = Usuario

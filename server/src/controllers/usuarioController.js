@@ -5,9 +5,9 @@ const crypto = require ('crypto')
 const mailer = require('../modules/mailer')
 
 exports.get = (req, res) => {
-    let id = req.params.id;
+    let { id } = req.params;
 
-    Login.findOne({ where: {id: id}}).then(response => {
+    Login.findOne({ where: { id }}).then(response => {
         res.status(200).json(JSON.parse(JSON.stringify(response)));
     })
 }
@@ -18,84 +18,59 @@ exports.getAll = (req, res) => {
     });
 }
 
-exports.post = (req, res) => {
-    if (!req.body.usuario) {
-        return res.status(411).json({
-            message: "Nome de usuário muito curto"
+exports.signup = (req, res) => {
+    let { usuario, email, senha } = req.body;
+
+    if (!usuario)
+        return res.status(411).json({ message: "Username is too short" })
+
+    if (!email)
+        return res.status(411).json({ message: "Email is too short" })
+
+    if (!senha)
+        return res.status(411).json({ message: "Password is too short" })
+
+    Login.findOne({ where: { usuario }}).then(response => {
+        if (response)
+            return res.status(409).json({ message: 'User already exists' })
+
+        let data = {
+            usuario: usuario,
+            email: email,
+            senha: senha,
+            isAdmin: false
+        }
+        Login.create(data).then(response => {
+            res.status(201).json(response);
+        }).catch((err) => {
+            res.status(500).json({ error: err });
         })
-    } else {
-        let usuario = req.body.usuario
-        Login.findOne({ where: {usuario: usuario}}).then(response => {
-            if (response) {
-                return res.status(409).json({
-                    message: 'Usuario ja existe'
-                })
-            } else {
-                bCrypt.hash(req.body.senha, 10, (err, hash) => {
-                    if (err) {
-                        return res.status(500).json({
-                            error: err
-                        })
-                    } else {
-                        let data = {
-                            usuario: req.body.usuario,
-                            email: req.body.email,
-                            senha: hash,
-                            isAdmin: false
-                        }
-                        Login.create(data).then(response => {
-                            res.status(201).json(response);
-                        }).catch((err) => {
-                            res.status(500).json({
-                                error: err
-                            });
-                        })
-                    }
-                })
-            }
-        })
-    }
+    })
 }
 
 exports.login = (req, res) => {
-    let usuario = req.body.usuario
-    let senha = req.body.senha
-    if (!usuario || !senha) {
-        return res.status(411).json({
-            message: "Nome de usuário ou senha muito curtos"
-        })
-    } else {
-        Login.findOne({ where: {usuario: usuario}}).then(usuario => {
-            if (!usuario) {
-                return res.status(401).json({
-                    message: 'Login ou senha incorretos'
-                })
-            } else {
-                bCrypt.compare(senha, usuario.senha, (err, result) => {
-                    if (result && !err) {
-                        const token = jwt.sign({
-                            usuario: usuario.usuario,
-                            senha: usuario.senha
-                        },
-                            process.env.DB_TOKEN,
-                            {
-                                expiresIn: "8h"
-                            })
-                        return res.status(200).json({
-                            token: token,
-                            message: 'Logado!'
-                        })
-                    } else {
-                        return res.status(401).json({
-                            message: 'Login ou senha incorretos'
-                        })
-                    }
-                })
+    let { usuario, senha } = req.body;
+    let { ACCESS_TOKEN } = process.env;
+
+    if (!usuario || !senha)
+        return res.status(411).json({ message: "Username or password is too short" })
+
+    Login.findOne({ where: { usuario }}).then(usuario => {
+        if (!usuario)
+            return res.status(401).json({ message: 'Incorrect username is password' })
+
+        bCrypt.compare(senha, usuario.senha, (err) => {
+            if (err)
+                return res.status(401).json({ message: 'Login ou senha incorretos' })
+
+            let loginAndPassword = {
+                usuario: usuario.usuario,
+                senha: usuario.senha
             }
-        }).catch((err) => {
-            console.log(err)
+            const token = jwt.sign({ loginAndPassword }, ACCESS_TOKEN, { expiresIn: "8h" })
+            return res.status(200).json({ token: token })
         })
-    }
+    }).catch((err) => { console.log(err) })
 }
 
 exports.forgotPassword = async (req, res) => {
@@ -170,38 +145,29 @@ exports.resetPassword = async (req, res) => {
 }
 
 exports.update = (req, res) => {
-    let id = req.body.id;
+    let { id, usuario, email, senha, isAdmin } = req.body;
 
-    bCrypt.hash(req.body.senha, 10, (err, hash) => {
-        if (err) {
-            return res.status(500).json({
-                error: err
-            })
-        } else {
-            let data = {
-                usuario: req.body.usuario,
-                email: req.body.email,
-                senha: hash,
-                isAdmin: req.body.isAdmin
-            };
-            Login.update(data, { where: {id: id}}).then(response => {
-                res.status(200).json(response);
-            }).catch((err) => {
-                res.status(500).json({
-                    error: err
-                });
-            })
-        }
+    let data = {
+        usuario: usuario,
+        email: email,
+        senha: senha,
+        isAdmin: isAdmin
+    };
+
+    Login.update(data, { where: {id: id}}).then(response => {
+        res.status(200).json(response);
+    }).catch((err) => {
+        res.status(500).json({ error: err });
     })
 }
 
 exports.delete = (req, res) => {
-    let id = req.params.id;
-    Login.destroy({
-        where: {
-            id: id
-        }
-    }).then(response => {
+    let { id } = req.params;
+
+    if (!id)
+        return res.status(404).json({ message: "Id was not found" })
+
+    Login.destroy({ where: { id }}).then(response => {
         res.status(200).json(response);
     });
 }
