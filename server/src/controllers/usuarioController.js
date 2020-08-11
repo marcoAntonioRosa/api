@@ -52,23 +52,27 @@ exports.login = (req, res) => {
     let { usuario, senha } = req.body;
     let { ACCESS_TOKEN } = process.env;
 
-    if (!usuario || !senha)
-        return res.status(411).json({ message: "Username or password is too short" })
+    if (!usuario || !senha) {
+		return res.status(411).json({ message: "Username or password is too short" })
+	}
+        
 
     Login.findOne({ where: { usuario }}).then(usuario => {
         if (!usuario)
-            return res.status(401).json({ message: 'Incorrect username is password' })
+            return res.status(401).json({ message: 'Incorrect username or password' })
 
-        bCrypt.compare(senha, usuario.senha, (err) => {
-            if (err)
-                return res.status(401).json({ message: 'Login ou senha incorretos' })
+        bCrypt.compare(senha, usuario.senha, (err, result) => {
+            if (err || !result)
+                return res.status(401).json({ message: 'Incorrect username or password' })
 
-            let loginAndPassword = {
-                usuario: usuario.usuario,
-                senha: usuario.senha
-            }
-            const token = jwt.sign({ loginAndPassword }, ACCESS_TOKEN, { expiresIn: "8h" })
-            return res.status(200).json({ token: token })
+			if (result) {
+				let loginAndPassword = {
+					usuario: usuario.usuario,
+					senha: usuario.senha
+				}
+				const token = jwt.sign({ loginAndPassword }, ACCESS_TOKEN, { expiresIn: "8h" })
+				return res.status(200).json({ token: token })
+			}
         })
     }).catch((err) => { console.log(err) })
 }
